@@ -243,4 +243,24 @@ class generalized(gym.Env):
             action_msg = Message()
             add_variable(action_msg, SEG_DOUBLE_ARRAY,
                          self.gNB_powers, len(self.gNB_powers))
-            send_and_receive(self.sock, action_msg, expect_reply                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+            send_and_receive(self.sock, action_msg, expect_reply=False)
+
+            return True, sinrs, tputs, reward
+
+        except Exception as exc:
+            print(f"[env] Socket error in _netsim_exchange: {exc}")
+            return False, dummy, dummy, 0.0
+
+    # -- gym boilerplate --------------------------------------------------------
+
+    def render(self):
+        if self.total_rewards:
+            print(f"[env] Step {self.it} | reward = {self.total_rewards[-1]:.4f}")
+
+    def close(self):
+        if self.sock is not None:
+            try:
+                self.sock.close()
+            except Exception:
+                pass
+            self.sock = None
